@@ -1,12 +1,14 @@
 from typing import List, Dict
 from openai import OpenAI
-from actor import Actor
+from core.actor import Actor
 import json
-
+import re
 openai_client = OpenAI()
 
 
 class Coder(Actor):
+    name = "coder"
+
     llm1_messages: List[Dict[str, str]] = [
         {"role": "system", "content": "You are a helpful assistant that specializes in producing bug free python code."
                                       "The user will provide you with the input, logic to be implemented, and expected output."
@@ -79,6 +81,13 @@ class Coder(Actor):
         self.llm3_messages.append({"role": "user", "content": code})
         test_code = self.validation_loop(self.llm3_messages, [self.llm2_messages[0]])
 
+        code_match = re.search(r"```python(.*?)```", code, re.DOTALL)
+        if code_match:
+            code = code_match.group(1).strip()
+
+        test_code_match = re.search(r"```python(.*?)```", test_code, re.DOTALL)
+        if test_code_match:
+            test_code = test_code_match.group(1).strip()
 
         return {"code": code, "test_code": test_code}
 

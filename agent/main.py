@@ -1,8 +1,8 @@
-from array import array
 from typing import List, Dict
 
 from openai import OpenAI
 
+from core.actor import Actor
 from coder import Coder
 from user import User
 from tool import Tool, Parameter
@@ -70,7 +70,10 @@ Pick the best tool for the job and use it. Your goal is to help the user quickly
             if isinstance(resp, Dict):
                 print(f"It's a hit!! delegating to tool: {resp}")
                 for fct, arguments in resp.items():
-                    self.delegate(fct, arguments)
+                    actor, actor_resp = self.delegate(fct, arguments)
+                    print(f"response from Actor[{actor.name}]:\n {actor_resp}")
+                    feedback = user.ask("Any feedback?")
+
                 break
             else:
                 user_input = user.ask(resp)
@@ -79,11 +82,12 @@ Pick the best tool for the job and use it. Your goal is to help the user quickly
                     {"role": "user", "content": user_input}
                 ])
                 #print(self.messages)
-    def delegate(self, fct, arguments):
+    def delegate(self, fct, arguments) -> (Actor, str):
         for tool in self.tools:
             if tool.name == fct:
                 resp = tool.actor.run(arguments)
-                print(f"response from Actor[{tool.name}]:\n {resp}")
+                return tool.actor, resp
+
 
 
 user = User()
