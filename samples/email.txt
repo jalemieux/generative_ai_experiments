@@ -1,0 +1,11 @@
+It was great meeting you all in person. Thank you for your hospitality and wonderful discussions.
+
+Its good to see that intra-team collaboration and ownership is acknowledged as an area of improvement.
+
+From an ownership perspective, I agree that we need to make teams fully responsible for their components/services, starting from requirement gathering to making customers successful including but not limiting to CSOs and P2Es. This has been my message to my teams also. Unfortunately, some teams in India who were working in shared model, were only working at story/tasks level earlier, which doesn't give them any visibility or sense of the larger responsibility. There was lack of satisfaction and moral was overall down. The situation was worse among managers. Things have improved since then but we have to do more.
+
+Great things happen when teams are aware of the impact of their work and are fully empowered and responsible for their components/services. At least for new services or work streams, we should have clear ownership and responsibilities defined. For existing workstreams, lets take them at team level and make the necessary changes. As we make contractor conversions, we can fix the ownership and responsibilities for existing components/services.
+
+For cross-geo collaboration, there are two parts, visibility into what's happening across Marketo but more importantly being part of the decision making, specially for the areas which impacts them. We need processes and awareness to make this successful. Managers, leaders and program managers will have to take the maximum responsibility here to make sure there is a two way flow of information and right stakeholders are included in decision making.
+
+Being aware of the challenges is a great start. The first step is to sensitize our teams to make sure that they understand the need of better collaboration and then can work within their groups to find right model. I had some great discussions with Pei on how to improve the collaboration at architects level and we have action plan there. We need it at team level and management level too. Lets start with sensitizing our teams for better cross collaboration needs.

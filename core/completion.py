@@ -2,8 +2,11 @@ from typing import List, Dict, Type
 from openai import OpenAI
 
 from typing import Optional, List, Dict
+
+from openai._base_client import SyncAPIClient
 from pydantic import BaseModel, Field
 import re
+
 
 class Parameter(BaseModel):
     type: str
@@ -50,17 +53,15 @@ class Tool(BaseModel):
         return out
 
 
-
 class Completion:
-    def complete(self, messages: List[Dict[str,str]]) -> str:
+    def complete(self, messages: List[Dict[str, str]]) -> str:
         pass
 
-    def parse(self, messages: List[Dict[str,str]], response_format:Type[BaseModel]=None) -> str:
+    def parse(self, messages: List[Dict[str, str]], response_format: Type[BaseModel] = None) -> str:
         pass
 
-    def force_tool(self, messages: List[Dict[str,str]], tools: List[Tool]) -> List:
+    def force_tool(self, messages: List[Dict[str, str]], tools: List[Tool]) -> List:
         pass
-
 
     def _compress_messages(self, messages):
         # TODO: summarize if length exceeds treshold
@@ -70,30 +71,49 @@ class Completion:
             compressed_messages.append({"role": msg["role"], "content": compressed_content})
         return compressed_messages
 
-class OpenAICompletion(Completion):
-    client = OpenAI()
 
-    def parse(self, messages: List[Dict[str, str]], response_format:Type[BaseModel]=None, ) -> str:
+class OpenAICompletion(Completion):
+    client: SyncAPIClient
+    parse_model: str
+    completion_model: str
+    tool_model: str
+    default_model: str
+    default_temperature: str
+
+    def __init__(self,
+                 completion_model=None,
+                 parse_model=None,
+                 tool_model=None,
+                 default_model=None,
+                 default_temperature=None
+                 ):
+        self.default_model = default_model or "gpt-4o"
+        self.completion_model = completion_model or self.default_model
+        self.parse_model = parse_model or self.default_model
+        self.tool_model = tool_model or self.default_model
+        self.default_temperature = default_temperature or 0
+        client = OpenAI()
+
+    def parse(self, messages: List[Dict[str, str]], response_format: Type[BaseModel] = None, ) -> str:
         completion = self.client.beta.chat.completions.parse(
-            model="gpt-4o-mini",
+            model=self.parse_model,
             messages=self._compress_messages(messages),
             temperature=0,
             response_format=response_format
         )
         return completion.choices[0].message.parsed
 
-    def complete(self, messages: List[Dict[str,str]]) -> str:
-
+    def complete(self, messages: List[Dict[str, str]]) -> str:
         completion = self.client.chat.completions.create(
-            model="gpt-4o",
+            model=self.completion_model,
             messages=self._compress_messages(messages),
             temperature=0,
         )
         return completion.choices[0].message.content
 
-    def force_tool(self, messages: List[Dict[str,str]], tools: List[Tool]) -> List:
+    def force_tool(self, messages: List[Dict[str, str]], tools: List[Tool]) -> List:
         completion = self.client.chat.completions.create(
-            model="gpt-4o",
+            model=self.tool_model,
             messages=self._compress_messages(messages),
             tools=[tool.dump() for tool in tools],
             temperature=0,
@@ -101,7 +121,13 @@ class OpenAICompletion(Completion):
         )
         fcts = []
         for tool_call in completion.choices[0].message.tool_calls:
-            fcts.append({ "name": tool_call.function.name, "arguments": tool_call.function.arguments})
+            fcts.append({"name": tool_call.function.name, "arguments": tool_call.function.arguments})
         return fcts
 
 
+class OllamaCompletion(OpenAICompletion):
+    def __init__(self, model, url=None, **args):
+        super().__init__(default_model=model, **args)
+        self.client = OpenAI(
+            base_url=url or "http://127.0.0.1:11434/v1",
+            api_key="ollama")
