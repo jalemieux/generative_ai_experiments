@@ -1,8 +1,8 @@
-from typing import Dict, List, Any, Type
+from typing import Dict, List, Any, Type, Optional
 from pydantic import BaseModel
-from core.actor import Actor
-from core.completion import Completion
+from core.completion import Completion, OllamaCompletion
 import json
+
 
 
 class Message(BaseModel):
@@ -25,6 +25,15 @@ class AssistantMessage(Message):
     def __init__(self, content):
         super().__init__(role="assistant", content=content)
 
+class Actor:
+    name: str = "Actor"
+
+    def run(self, *args):
+        pass
+
+    def tool(self):
+        pass
+
 
 class SystemMessage(Message):
     def __init__(self, content):
@@ -35,7 +44,6 @@ class Converser:
     examples: Dict[str, str]
     messages: List[Message]
     completion: Completion
-    actors: List[Actor]
     persist: str
 
     def __init__(self,
@@ -54,6 +62,7 @@ class Converser:
             self.examples = examples
         if actors is not None:
             self.actors = actors
+
     def reset(self):
         if len(self.messages) > 0:
             inst = self.messages[0]
@@ -122,3 +131,26 @@ class Converser:
         with open(fp, 'r') as f:
             data = json.load(f)
             return [Message(**m) for m in data]
+
+
+# # Example: requires ollama llama3.1 running locally
+# from pydantic import Field
+# class RainbowColors(BaseModel):
+#     """colors of the rainbow"""
+#     colors: Optional[List[str]] = None
+#
+# ollama = OllamaCompletion(model="llama3.1", default_temperature=0.0)
+# ollama_converser = Converser(ollama, instruction="you are a helpful assistant")
+# try:
+#     ollama_converser.response("colors of the rainbow", RainbowColors)
+# except NotImplementedError:
+#     print("ollama does not implement parse!")
+# # raises a NotImplemented error because ollama does not support parse method
+# # instead do this:
+# formatter = utility.JSONFormatter(ollama)
+# colors_raw = ollama_converser.response("colors of the rainbow")
+# print(colors_raw)
+# colors_json = formatter.convert(RainbowColors, colors_raw)
+# print(colors_json)
+
+

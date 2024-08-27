@@ -126,8 +126,15 @@ class OpenAICompletion(Completion):
 
 
 class OllamaCompletion(OpenAICompletion):
+
     def __init__(self, model, url=None, **args):
         super().__init__(default_model=model, **args)
         self.client = OpenAI(
             base_url=url or "http://127.0.0.1:11434/v1",
             api_key="ollama")
+
+    def parse(self, messages: List[Dict[str, str]], response_format: Type[BaseModel] = None, ) -> str:
+        raise NotImplementedError("not implemented")
+
+    def force_tool(self, messages: List[Dict[str, str]], tools: List[Tool]) -> List:
+        raise NotImplementedError("not implemented")

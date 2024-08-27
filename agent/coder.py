@@ -1,6 +1,6 @@
 from typing import List, Dict
 from openai import OpenAI
-from core.actor import Actor
+from core.utility import Actor
 import json
 import re
 openai_client = OpenAI()

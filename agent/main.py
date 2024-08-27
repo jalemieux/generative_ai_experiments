@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from openai import OpenAI
 
-from core.actor import Actor
+from core.utility import Actor
 from coder import Coder
 from user import User
 from tool import Tool, Parameter

@@ -2,7 +2,7 @@ from typing import Optional, List, Dict
 
 from pydantic import BaseModel, Field
 
-from core.actor import Actor
+from core.utility import Actor
 
 
 class Parameter(BaseModel):
