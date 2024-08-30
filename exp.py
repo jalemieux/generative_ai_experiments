@@ -6,41 +6,17 @@
 
 # 2. Story details:
 #   - chat with user until the details are collected
-prompt_extract_character_details_2 = """
-You are a character creation assistant. Your task is to help the user create a character by asking questions and gathering details about the character's name, physical appearance, and personality traits. Please ask the user the following questions one by one and wait for their response before asking the next question:
 
-1. What is the character's name?
-2. What is the character's age?
-3. What is the character's gender?
-4. Can you describe the character's physical appearance? (e.g., height, build, hair color, eye color, etc.)
-5. What are some key personality traits of the character? (e.g., brave, kind, intelligent, etc.)
-6. Does the character have any unique features or distinguishing marks? (e.g., scars, tattoos, etc.)
+# √ TODO: get character details from user : char_builder.py
+# TODO: get story details from user
+# TODO: generate story
+# TODO: generate image
+# TODO: generate audio
+# TODO: publish content 
 
-Please provide detailed responses to each question to help create a well-rounded character.
-Once you have all the details, please return the character in JSON format like this:
-{
-    "name": "John Doe",
-    "age": 30,
-    "gender": "male",
-    "physical_appearance": "5.10 average built brown hair and blue eyes",
-    "personality_traits": "brave, kind, intelligent",
-    "unique_features": "scar on left cheek",
-}
-"""
 
-prompt_extract_character_details = """
-You are a character creation assistant. Your task is to help the user create a character by asking questions and gathering details about the character's physical appearance, personality traits, and any other relevant information. Please ask the user the following questions one by one and wait for their response before asking the next question:
 
-1. What is the character's name?
-2. Can you describe the character's physical appearance? (e.g., height, build, hair color, eye color, etc.)
-3. What are some key personality traits of the character? (e.g., brave, kind, intelligent, etc.)
-4. Does the character have any unique features or distinguishing marks? (e.g., scars, tattoos, etc.)
-5. What is the character's backstory or background?
-6. Is there any other information you would like to add about the character?
 
-Please provide detailed responses to each question to help create a well-rounded character.
-Once you have all the details, please return the character in JSON format.
-"""
 
 import streamlit as st
 
@@ -50,35 +26,37 @@ from pydantic import BaseModel
 
 from core.completion import OpenAICompletion
 from core.converser import Converser
+from core.utility import NameExtractor
 
-def user_input(msg: str) -> str:
-    return input(f"{str}\n")
+def user_input(msg: str, requires_answer: bool = True) -> str:
+    if requires_answer is False:
+        print(f"{msg}\n")
+    else:
+        return input(f"{msg}\n")
     
-class Trait(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
 
-class Character(BaseModel):
-    name: Optional[str] = None
-    age: Optional[int] = None
-    gender: Optional[str] = None
-    description: Optional[str] = None
-    traits: Optional[List[Trait]] = None
-    image: Optional[str] = None
-    unique_features: Optional[str] = None
 
-class Story(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    characters: Optional[List[Character]] = None
-    plot: Optional[str] = None
+
+class PersonName(BaseModel):
+    name: Optional[str] = None
 
 
 completion = OpenAICompletion()
-character_extractor_converser = Converser(completion, instruction=prompt_extract_character_details)
+parse_completion = OpenAICompletion(parse_model="gpt-4o-2024-08-06")
+#name_extractor = NameExtractor(completion)
+name_extractor = Converser(completion, instruction=prompt_name_extraction)
+character_conv = Converser(completion, instruction=prompt_extract_character_details)
 
-character_extractor_converser.response()
+user_input("Hi there! I'm here to help you create a character for your story. Let's get started!", requires_answer=False)
+char_name_raw = user_input("What is the character's name?")
 
+char_name = parse_completion.parse([{"role": "system", "content": prompt_name_extraction.format(input=char_name_raw)}], Character)
 
-JSONFormatter().format(character_extractor_converser.response())
+print(char_name)
+# user_input("Great! Now let's gather some details about the character's physical appearance, personality traits, and any other relevant information.", requires_answer=False)
 
+# char_age_raw = user_input("What is the character's age?")
+# char_age = character_extractor_converser.ask(char_age_raw)
+
+# char_gender_raw = user_input("What is the character's gender?")
+# char_gender = character_extractor_converser.ask(char_gender_raw)

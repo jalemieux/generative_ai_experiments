@@ -1,5 +1,5 @@
 import json
-from typing import Type
+from typing import Optional, Type
 
 from pydantic import BaseModel
 
@@ -34,3 +34,22 @@ Ensure Correctness: Make sure the JSON is correctly formatted, with appropriate 
         self.converser.response(f"input: {input}")
         content = self.converser.last_message()
         return type(**json.loads(content))
+
+
+class NameExtractor:
+    
+    """extracts name from a given string"""
+    p = f"""
+You are an expert in name extraction. Your task is to process the given input and extract the person's name. Please follow these steps:
+Analyze the Input: Carefully read and understand the provided input.
+Extract the Name: Identify and extract the name from the input.
+Ensure Correctness: Make sure the name is correctly extracted and formatted.
+"""
+
+    def __init__(self, completion: Completion):
+        from core.converser import Converser
+        self.converser = Converser(
+            completion=completion,
+            instruction=self.p,
+        )
+

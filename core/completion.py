@@ -92,7 +92,7 @@ class OpenAICompletion(Completion):
         self.parse_model = parse_model or self.default_model
         self.tool_model = tool_model or self.default_model
         self.default_temperature = default_temperature or 0
-        client = OpenAI()
+        self.client = OpenAI()
 
     def parse(self, messages: List[Dict[str, str]], response_format: Type[BaseModel] = None, ) -> str:
         completion = self.client.beta.chat.completions.parse(
